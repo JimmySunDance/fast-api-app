@@ -43,3 +43,19 @@ alembic downgrade < revision number>
 ```
 alembic revision --autogenerate -m '< message >'
 ```
+
+# Heroku
+- Deploy Updates
+```
+git push heroku HEAD:master
+```
+
+- Restart app
+```
+heroku ps:restart
+```
+
+- App information
+```
+heroku apps:info fastapi-jpoulten
+```
