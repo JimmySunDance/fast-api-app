@@ -59,3 +59,23 @@ heroku ps:restart
 ```
 heroku apps:info fastapi-jpoulten
 ```
+
+# Alembic on Heroku
+```
+heroku run alembic upgrade head
+```
+
+# Docker
+- Build an image
+```
+docker build -t < name > .
+```
+- run api in docker container
+```
+docker-compose -f docker-compose-dev.yml up -d
+docker-compose exec < name > alembic upgrade head
+```
+- close container
+```
+docker-compose -f docker-compose-dev.yml down
+```

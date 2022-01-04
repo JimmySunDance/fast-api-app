@@ -1,5 +1,5 @@
 # Third party imports
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 
 # project imports
@@ -21,7 +21,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
- 
+
 
 app.include_router(post.router)
 app.include_router(user.router)
@@ -31,4 +31,4 @@ app.include_router(vote.router)
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to my API"}
+    return {"message": "Hello World"}
