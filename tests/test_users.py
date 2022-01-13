@@ -1,5 +1,8 @@
+import pytest
+from jose import jwt
 from app import schemas
-from .database import client, session
+from app.config import settings
+
 
 def test_root(client):
     res = client.get("/")
@@ -11,15 +14,38 @@ def test_crete_user(client):
     res = client.post(
         "/users/", json={"email": "testemail@test.com", "password": "password123"}
     )
-
     new_user = schemas.UserOut(**res.json())
     assert new_user.email == "testemail@test.com"
     assert res.status_code == 201
 
 
-def test_login_user(client):
+def test_login_user(client, test_user_1):
     res = client.post(
-        "/login/", data={"username": "testemail@test.com", "password": "password123"}
+        "/login/",
+        data={"username": test_user_1["email"], "password": test_user_1["password"]},
     )
-    print(res.json)
+    login_res = schemas.Token(**res.json())
+    payload = jwt.decode(
+        login_res.access_token, settings.secret_key, algorithms=[settings.algorithm]
+    )
+    id = payload.get("user_id")
+
+    assert id == test_user_1["id"]
+    assert login_res.token_type == "bearer"
     assert res.status_code == 200
+
+
+@pytest.mark.parametrize(
+    "email, password, status_code",
+    [
+        ("wrongEmail@test.com", "password123", 403),
+        ("testemail@test.com", "wrongPassword", 403),
+        ("wrongEmail@test.com", "wrongPassword", 403),
+        (None, "password123", 422),
+        ("testemail@test.com", None, 422),
+    ],
+)
+def test_failed_login(client, email, password, status_code):
+    res = client.post("/login/", data={"username": email, "password": password})
+
+    assert res.status_code == status_code
